@@ -1,0 +1,35 @@
+---
+# tasks file for ageres210784.ansible_gitlab
+- name: Ensure data path
+  file:
+    state: directory
+    path: "{{ gitlab_home }}"
+    mode: 0755
+  register: gitlab_reconfig
+
+- name: Start docker gitlab container
+  docker_compose:
+    state: present
+    project_name: gitlab
+    restarted: "{{ 'yes' if gitlab_reconfig.changed else 'no' }}"
+    definition:
+      version: '2'
+      services:
+        gitlab:
+          image: "{{ gitlab_docker_image }}"
+          container_name: "{{ gitlab_container_name }}"
+          ports:
+            - "80:80"
+            - "443:443"
+            - "2022:22"
+          volumes:
+            - '{{ gitlab_home }}/config:/etc/gitlab'
+            - '{{ gitlab_home }}/logs:/var/log/gitlab'
+            - '{{ gitlab_home }}/data:/var/opt/gitlab'
+          hostname: "{{ gitlab_host_name }}"
+          environment:
+            GITLAB_OMNIBUS_CONFIG: |
+              external_url "{{ gitlab_external_url }}"
+              gitlab_rails['initial_root_password'] = "{{ gitlab_initial_root_password }}"
+              # Add any other gitlab.rb configuration here, each on its own line
+          restart: always

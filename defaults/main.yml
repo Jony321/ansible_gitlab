@@ -1,0 +1,7 @@
+---
+gitlab_home: "/var/lib/gitlab"
+gitlab_host_name: "gitlab.local"
+gitlab_external_url: "http://{{ gitlab_host_name }}"
+gitlab_docker_image: "gitlab/gitlab-ce:latest"
+gitlab_container_name: "gitlab"
+gitlab_initial_root_password: "S0mepassw0rd"
