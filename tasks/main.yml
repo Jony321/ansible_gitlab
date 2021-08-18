@@ -19,17 +19,14 @@
           image: "{{ gitlab_docker_image }}"
           container_name: "{{ gitlab_container_name }}"
           ports:
-            - "80:80"
-            - "443:443"
-            - "2022:22"
+            - "{{ gitlab_http_port }}:80"
+            - "{{ gitlab_https_port }}:443"
+            - "{{ gitlab_ssh_port }}:22"
           volumes:
             - '{{ gitlab_home }}/config:/etc/gitlab'
             - '{{ gitlab_home }}/logs:/var/log/gitlab'
             - '{{ gitlab_home }}/data:/var/opt/gitlab'
           hostname: "{{ gitlab_host_name }}"
           environment:
-            GITLAB_OMNIBUS_CONFIG: |
-              external_url "{{ gitlab_external_url }}"
-              gitlab_rails['initial_root_password'] = "{{ gitlab_initial_root_password }}"
-              # Add any other gitlab.rb configuration here, each on its own line
+            GITLAB_OMNIBUS_CONFIG: "{{ gitlab_omnibus_config }}"
           restart: always

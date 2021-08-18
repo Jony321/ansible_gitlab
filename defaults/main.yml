@@ -5,3 +5,10 @@ gitlab_external_url: "http://{{ gitlab_host_name }}"
 gitlab_docker_image: "gitlab/gitlab-ce:latest"
 gitlab_container_name: "gitlab"
 gitlab_initial_root_password: "S0mepassw0rd"
+gitlab_ssh_port: "22"
+gitlab_http_port: "80"
+gitlab_https_port: "443"
+gitlab_omnibus_config: |
+  external_url "{{ gitlab_external_url }}"
+  gitlab_rails['initial_root_password'] = "{{ gitlab_initial_root_password }}"
+  # Add any other gitlab.rb configuration here, each on its own line
