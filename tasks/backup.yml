@@ -1,0 +1,13 @@
+---
+- name: Create cron-job for backup
+  cron:
+    name: "gitlab backup"
+    user: "{{ gitlab_cron_user }}"
+    minute: "{{ gitlab_cron_time.minute | default('*') }}"
+    hour: "{{ gitlab_cron_time.hour | default('*') }}"
+    day: "{{ gitlab_cron_time.day | default('*') }}"
+    month: "{{ gitlab_cron_time.month | default('*') }}"
+    weekday: "{{ gitlab_cron_time.weekday  | default('*') }}"
+    job: "/usr/bin/docker exec -t {{ gitlab_container_name }} gitlab-backup create CRON=1 STRATEGY=copy"
+    state: "{{ gitlab_cron_state }}"
+  become: yes

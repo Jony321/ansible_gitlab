@@ -30,3 +30,11 @@
           environment:
             GITLAB_OMNIBUS_CONFIG: "{{ gitlab_omnibus_config }}"
           restart: always
+
+- name: Include backup.yml
+  include_tasks:
+    file: "backup.yml"
+    apply:
+      tags: backup
+  tags:
+    - backup
