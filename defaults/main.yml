@@ -13,7 +13,7 @@ gitlab_omnibus_config: |
   gitlab_rails['initial_root_password'] = "{{ gitlab_initial_root_password }}"
   # Add any other gitlab.rb configuration here, each on its own line
 gitlab_cron_user: root
-gitlab_cron_state: present
+gitlab_cron_state: absent
 gitlab_cron_time:
   minute: "0"
   hour: "2"
