@@ -1,0 +1,6 @@
+#!/bin/bash
+FILENAME={{ gitlab_home }}/data/backups/`date +%s_%Y_%m_%d`_gitlab_config.tar.gz
+rm -f {{ gitlab_home }}/data/backups/*_gitlab_config.tar.gz
+tar -cpzf $FILENAME --directory={{ gitlab_home }}/ config
+s3cmd put $FILENAME s3://$GITLAB_S3_PREFIX
+/usr/bin/docker exec -t {{ gitlab_container_name }} gitlab-backup create CRON=1 STRATEGY=copy

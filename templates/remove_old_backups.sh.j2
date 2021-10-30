@@ -1,0 +1,19 @@
+#!/bin/bash
+IFS=$'\n'
+FILES=(`s3cmd ls s3://$GITLAB_S3_PREFIX | grep -E "_gitlab_backup.tar$"`);
+CONFIGFILES=(`s3cmd ls s3://$GITLAB_S3_PREFIX | grep -E "_gitlab_config.tar.gz$"`);
+if [[ {%raw%}${#FILES[*]}{%endraw%} -lt $NUMBER_BACKUPS ]]
+  then echo "The number of archives is less than $NUMBER_BACKUPS!"
+  else
+    for FILE in ${FILES[*]}; do
+      if [[ `date +%s -d "$(awk '{print $1}' <<< $FILE)"` -lt `date +%s -d "$NUMBER_BACKUPS days ago"` ]]; then
+        s3cmd del `awk '{print $4}' <<< $FILE`
+        echo "`awk '{print $4}' <<< $FILE` was deleted"
+      fi
+    done
+    for FILE in ${CONFIGFILES[*]}; do
+      if [[ `date +%s -d "$(awk '{print $1}' <<< $FILE)"` -lt `date +%s -d "$NUMBER_BACKUPS days ago"` ]]; then
+        s3cmd del `awk '{print $4}' <<< $FILE`
+      fi
+    done
+fi

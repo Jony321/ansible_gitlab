@@ -1,4 +1,54 @@
 ---
+
+- name: Ensure s3cmd is installed
+  apt:
+    name: s3cmd
+
+- name: Ensure log directory
+  become: yes
+  file:
+    name: "{{ gitlab_log_path }}"
+    owner: "{{ gitlab_cron_user }}"
+    group: "{{ gitlab_cron_user }}"
+    mode: 0764
+    state: directory
+
+- name: Ensure bin directory
+  become: yes
+  file:
+    name: "{{ gitlab_bin_path }}"
+    owner: "{{ gitlab_cron_user }}"
+    group: "{{ gitlab_cron_user }}"
+    mode: 0764
+    state: directory
+
+- name: Ensure gitlab backup script
+  become: yes
+  template:
+    src: backup_gitlab.sh.j2
+    dest: "{{ gitlab_bin_path }}/backup_gitlab.sh"
+    owner: "{{ gitlab_cron_user }}"
+    group: "{{ gitlab_cron_user }}"
+    mode: '0750'
+
+- name: Ensure delete old backups script
+  become: yes
+  template:
+    src: remove_old_backups.sh.j2
+    dest: "{{ gitlab_bin_path }}/remove_old_backups.sh"
+    owner: "{{ gitlab_cron_user }}"
+    group: "{{ gitlab_cron_user }}"
+    mode: '0750'
+
+- name: Ensure s3cmd config file
+  become: yes
+  template:
+    src: .s3cfg.j2
+    dest: "{{ gitlab_s3cmd_config_path }}/.s3cfg"
+    owner: "{{ gitlab_cron_user }}"
+    group: "{{ gitlab_cron_user }}"
+    mode: '0640'
+
 - name: Create cron-job for backup
   cron:
     name: "gitlab backup"
@@ -8,6 +58,19 @@
     day: "{{ gitlab_cron_time.day | default('*') }}"
     month: "{{ gitlab_cron_time.month | default('*') }}"
     weekday: "{{ gitlab_cron_time.weekday  | default('*') }}"
-    job: "/usr/bin/docker exec -t {{ gitlab_container_name }} gitlab-backup create CRON=1 STRATEGY=copy"
+    job: "GITLAB_S3_PREFIX={{ gitlab_s3_prefix }} {{ gitlab_bin_path }}/backup_gitlab.sh >> {{ gitlab_log_path }}/gitlab_backup.log 2>&1"
+    state: "{{ gitlab_cron_state }}"
+  become: yes
+
+- name: Create cron-job for delete old backups
+  cron:
+    name: "delete old gitlab backups"
+    user: "{{ gitlab_cron_user }}"
+    minute: "{{ gitlab_cron_time_delete.minute | default('*') }}"
+    hour: "{{ gitlab_cron_time_delete.hour | default('*') }}"
+    day: "{{ gitlab_cron_time_delete.day | default('*') }}"
+    month: "{{ gitlab_cron_time_delete.month | default('*') }}"
+    weekday: "{{ gitlab_cron_time_delete.weekday  | default('*') }}"
+    job: "NUMBER_BACKUPS={{ NUMBER_BACKUPS }} GITLAB_S3_PREFIX={{ gitlab_s3_prefix }} {{ gitlab_bin_path }}/remove_old_backups.sh >> {{ gitlab_log_path }}/gitlab_backup.log 2>&1"
     state: "{{ gitlab_cron_state }}"
   become: yes
