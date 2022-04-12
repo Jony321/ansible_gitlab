@@ -2,7 +2,7 @@
 FILENAME={{ gitlab_home }}/data/backups/`date +%s_%Y_%m_%d`_gitlab_config.tar.gz
 
 send_notification() {
-{% if apprise_stateless_urls != "" %}
+{% if send_backup_notifications %}
   RESULT_STATUS=$?
   if [ "${RESULT_STATUS}" -ne 0 ]; then
     curl -X POST -d "body=${1}&title=Failed to create gitlab backup" {{ gitlab_apprise_address }}/notify
