@@ -74,18 +74,3 @@
     job: "NUMBER_BACKUPS={{ NUMBER_BACKUPS }} GITLAB_S3_PREFIX={{ gitlab_s3_prefix }} {{ gitlab_bin_path }}/remove_old_backups.sh >> {{ gitlab_log_path }}/gitlab_backup.log 2>&1"
     state: "{{ gitlab_cron_state }}"
   become: yes
-
-- name: Start apprise container
-  docker_compose:
-    state: "{{ gitlab_apprise_state }}"
-    project_name: gitlab_apprise
-    definition:
-      version: '2'
-      services:
-        apprise:
-          image: "caronc/apprise:{{ apprise_version }}"
-          container_name: apprise
-          ports:
-            - "127.0.0.1:{{ gitlab_apprise_port }}:8000"
-          environment:
-            - APPRISE_STATELESS_URLS={{ apprise_stateless_urls }}
