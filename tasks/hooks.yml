@@ -1,0 +1,26 @@
+---
+- name: Check hooks folder exist
+  file:
+    state: directory
+    path: "{{ gitlab_home }}/gitaly/custom_hooks"
+    mode: 0755
+  register: custom_hooks_folder
+
+- name: Check hooks-bin folder exist
+  file:
+    state: directory
+    path: "{{ gitlab_home }}/gitaly/hooks-bin"
+    mode: 0755
+  register: hooks_bin_folder
+
+- name: copy pre-receive hook to custom_hooks folder
+  template:
+    src: pre-receive.j2
+    dest: "{{ gitlab_home }}/gitaly/custom_hooks/pre-receive"
+  when: custom_hooks_folder.stat.exists
+
+- name: copy secrecy files to hooks-bin folder
+  copy:
+    src: secrecy.py
+    dest: "{{ gitlab_home }}/gitaly/hooks-bin/secrecy.py"
+  when: hooks_bin_folder.stat.exists

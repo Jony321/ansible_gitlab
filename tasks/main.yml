@@ -38,3 +38,8 @@
       tags: backup
   tags:
     - backup
+
+- name: Include hooks.yml
+  include_tasks:
+    file: "hooks.yml"
+  when: gitlab_enable_pre-receive_hooks == true
