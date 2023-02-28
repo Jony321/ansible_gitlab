@@ -1,26 +1,44 @@
 ---
-- name: Check hooks folder exist
+- name: Create hooks folder
   file:
     state: directory
-    path: "{{ gitlab_home }}/gitaly/custom_hooks"
+    path: "{{ gitlab_home }}/data/gitaly/custom_hooks"
     mode: 0755
   register: custom_hooks_folder
 
-- name: Check hooks-bin folder exist
+- name: Create hooks-bin folder
   file:
     state: directory
-    path: "{{ gitlab_home }}/gitaly/hooks-bin"
+    path: "{{ gitlab_home }}/data/gitaly/hooks-bin"
     mode: 0755
+  register: hooks_bin_folder
+
+- name: Check hooks folder exist
+  stat: 
+    path: "{{ gitlab_home }}/data/gitaly/custom_hooks"
+  register: custom_hooks_folder
+
+- name: Check hooks-bin folder exist
+  stat: 
+    path: "{{ gitlab_home }}/data/gitaly/hooks-bin"
   register: hooks_bin_folder
 
 - name: copy pre-receive hook to custom_hooks folder
   template:
     src: pre-receive.j2
-    dest: "{{ gitlab_home }}/gitaly/custom_hooks/pre-receive"
+    dest: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive"
+    mode: 0755
   when: custom_hooks_folder.stat.exists
 
-- name: copy secrecy files to hooks-bin folder
+- name: copy secrecy.py to hooks-bin folder
   copy:
     src: secrecy.py
-    dest: "{{ gitlab_home }}/gitaly/hooks-bin/secrecy.py"
+    dest: "{{ gitlab_home }}/data/gitaly/hooks-bin/secrecy.py"
+    mode: 0755
   when: hooks_bin_folder.stat.exists
+
+# - name: Uncomment custom_hooks_folder at gitlab.rb
+#   lineinfile:
+#     dest: "{{ gitlab_home }}/config/gitlab.rb"
+#     regexp: '^# gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"$'
+#     line: '^gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"$'
