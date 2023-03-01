@@ -26,5 +26,5 @@ while read -r oldrev newrev refname; do
         base=$(git merge-base HEAD $newrev || git rev-list --max-parents=0 $newrev)
     fi
 
-    {{ gitlab_home }}/gitaly/hooks-bin/secrecy.py between $base $newrev
+    /var/opt/gitlab/gitaly/hooks-bin/secrecy.py between $base $newrev
 done
