@@ -1,6 +1,0 @@
----
-- name: gitlab-ctl reconfigure
-  community.docker.docker_container_exec:
-    container: gitlab
-    command: /bin/bash -c "gitlab-ctl reconfigure"
-    chdir: /root
