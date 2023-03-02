@@ -4,18 +4,12 @@
     state: directory
     path: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/"
     mode: 0755
-    # owner: git
-    # group: git
-  register: custom_hooks_folder
 
 - name: Create hooks-bin folder
   file:
     state: directory
     path: "{{ gitlab_home }}/data/gitaly/hooks-bin"
     mode: 0755
-    # owner: git
-    # group: git
-  register: hooks_bin_folder
 
 - name: Check hooks folder exist
   stat: 
@@ -27,26 +21,23 @@
     path: "{{ gitlab_home }}/data/gitaly/hooks-bin"
   register: hooks_bin_folder
 
-- name: copy pre-receive hook to custom_hooks folder
+- name: Copy pre-receive hook to custom_hooks folder
   template:
     src: pre-receive.j2
     dest: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/pre-receive"
     mode: 0755
-    # owner: git
-    # group: git
   when: custom_hooks_folder.stat.exists
 
-- name: copy secrecy.py to hooks-bin folder
+- name: Copy secrecy.py to hooks-bin folder
   copy:
     src: secrecy.py
     dest: "{{ gitlab_home }}/data/gitaly/hooks-bin/secrecy.py"
     mode: 0755
-    # owner: git
-    # group: git
   when: hooks_bin_folder.stat.exists
 
-# - name: Uncomment custom_hooks_folder at gitlab.rb
-#   lineinfile:
-#     dest: "{{ gitlab_home }}/config/gitlab.rb"
-#     regexp: !unsafe # gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
-#     line: !unsafe gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
+- name: Uncomment custom_hooks_folder at gitlab.rb
+  lineinfile:
+    dest: "{{ gitlab_home }}/config/gitlab.rb"
+    regexp: !unsafe # gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
+    line: !unsafe gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
+  notify: gitlab-ctl reconfigure
