@@ -7,5 +7,3 @@
   community.docker.docker_container_exec:
     container: "{{ gitlab_container_name }}"
     command: /bin/bash -c "gitlab-ctl reconfigure"
-    # chdir: /root
-    
