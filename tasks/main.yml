@@ -39,8 +39,12 @@
   tags:
     - backup
 
-- name: Include hooks.yml
+- name: Include enable_hooks.yml
   include_tasks:
-    file: "hooks.yml"
+    file: "enable_hooks.yml"
   when: gitlab_enable_pre_receive_hooks
-  
+
+- name: Include disable_hooks.yml
+  include_tasks:
+    file: "disable_hooks.yml"
+  when: not gitlab_enable_pre_receive_hooks

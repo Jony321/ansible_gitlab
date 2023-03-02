@@ -11,34 +11,22 @@
     path: "{{ hooks_bin_folder }}"
     mode: 0755
 
-# - name: Check hooks folder exist
-#   stat: 
-#     path: "{{ hooks_folder }}"
-#   register: custom_hooks_folder
-
-# - name: Check hooks-bin folder exist
-#   stat: 
-#     path: "{{ hooks_bin_folder }}"
-#   register: hooks_bin_folder
-
 - name: Copy pre-receive hook to custom_hooks folder
   copy:
     src: pre-receive
     dest: "{{ hooks_folder }}/pre-receive"
-    mode: 0755
-  # when: custom_hooks_folder.stat.exists
+    mode: 0444
 
 - name: Copy secrecy.py to hooks-bin folder
   copy:
     src: secrecy.py
     dest: "{{ hooks_bin_folder }}/secrecy.py"
-    mode: 0755
-  # when: hooks_bin_folder.stat.exists
+    mode: 0444
 
-- name: Uncomment custom_hooks_folder at gitlab.rb
+- name: Comment custom_hooks_folder line at gitlab.rb
   lineinfile:
     dest: "{{ gitlab_home }}/config/gitlab.rb"
     state: present
-    insertbefore: '##! Service name used to register Gitaly as a Consul service'
-    line: !unsafe gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
+    regexp: 'gitaly\[.custom_hooks_dir.\] = "/var/opt/gitlab/gitaly/custom_hooks"'
+    line: "# gitaly['custom_hooks_dir'] = \"/var/opt/gitlab/gitaly/custom_hooks\""
   notify: gitlab-ctl reconfigure
