@@ -14,7 +14,6 @@ gitlab_omnibus_config: |
   # Add any other gitlab.rb configuration here, each on its own line
 gitlab_log_path: "/var/log/gitlab"
 gitlab_bin_path: "/root/bin"
-gitlab_enable_pre_receive_hooks: true
 gitlab_s3cmd_config_path: "/root"
 gitlab_cron_user: root
 gitlab_cron_state: absent

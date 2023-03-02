@@ -1,0 +1,2 @@
+hooks_folder: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/"
+hooks_bin_folder: "{{ gitlab_home }}/data/gitaly/hooks-bin"
