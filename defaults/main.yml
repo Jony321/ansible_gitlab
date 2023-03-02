@@ -29,3 +29,8 @@ NUMBER_BACKUPS: 30
 AWS_ACCESS_KEY_ID_S3_GITLAB: AWS_ACCESS_KEY_ID_S3_GITLAB
 AWS_SECRET_ACCESS_KEY_S3_GITLAB: AWS_SECRET_ACCESS_KEY_S3_GITLAB
 AWS_REGION_S3_GITLAB: eu-west-1
+
+# Vars for enable server-side global hooks
+gitlab_enable_pre_receive_hooks: true
+hooks_folder: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/"
+hooks_bin_folder: "{{ gitlab_home }}/data/gitaly/hooks-bin"
