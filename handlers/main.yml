@@ -1,7 +1,7 @@
 ---
 # handlers file for ageres210784.ansible_gitlab
 
-- name: Run gitlab-ctl reconfigure
+- name: gitlab-ctl reconfigure
   community.docker.docker_container_exec:
     container: gitlab
     command: /bin/bash -c "gitlab-ctl reconfigure"
