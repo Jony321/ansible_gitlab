@@ -31,6 +31,9 @@ AWS_SECRET_ACCESS_KEY_S3_GITLAB: AWS_SECRET_ACCESS_KEY_S3_GITLAB
 AWS_REGION_S3_GITLAB: eu-west-1
 gitlab_apprise_address: "http://127.0.0.1:8000"
 send_backup_notifications: false
+s3cmd_host_base: "s3.amazonaws.com"
+s3cmd_host_bucket: "%(bucket)s.s3.amazonaws.com"
+
 
 # Vars for enable server-side global hooks
 gitlab_enable_pre_receive_hooks: false
