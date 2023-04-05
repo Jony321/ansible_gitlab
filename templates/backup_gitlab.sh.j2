@@ -1,6 +1,21 @@
 #!/bin/bash
 FILENAME={{ gitlab_home }}/data/backups/`date +%s_%Y_%m_%d`_gitlab_config.tar.gz
+
+send_notification() {
+{% if send_backup_notifications %}
+  RESULT_STATUS=$?
+  if [ "${RESULT_STATUS}" -ne 0 ]; then
+    curl -X POST -d "body=${1}&title=Failed to create gitlab backup" {{ gitlab_apprise_address }}/notify
+  fi
+{% endif %}
+}
+
 rm -f {{ gitlab_home }}/data/backups/*_gitlab_config.tar.gz
 tar -cpzf $FILENAME --directory={{ gitlab_home }}/ config
+send_notification "Error to create config backup to tar archive - «${FILENAME}» with code ${RESULT_STATUS}"
+
 s3cmd put $FILENAME s3://$GITLAB_S3_PREFIX
+send_notification "Error to send config backup to «${GITLAB_S3_PREFIX}» bucket with code ${RESULT_STATUS}"
+
 /usr/bin/docker exec -t {{ gitlab_container_name }} gitlab-backup create CRON=1 STRATEGY=copy
+send_notification "Error to create gitlab backup to «${GITLAB_S3_PREFIX}» bucket with code ${RESULT_STATUS}"
