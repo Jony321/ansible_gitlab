@@ -1,0 +1,9 @@
+[secrecy]
+vaults = 
+{% for vault in config_file.vaults %}
+    {{ vault }}
+{% endfor %}
+ignore = 
+{% for ignore_file in config_file.ignore_files %}
+    {{ ignore_file }}
+{% endfor %}
