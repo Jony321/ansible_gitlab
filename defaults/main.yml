@@ -31,16 +31,18 @@ AWS_SECRET_ACCESS_KEY_S3_GITLAB: AWS_SECRET_ACCESS_KEY_S3_GITLAB
 AWS_REGION_S3_GITLAB: eu-west-1
 
 # Vars for enable server-side global hooks
-gitlab_enable_pre_receive_hooks: false
 hooks_folder: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/"
 hooks_bin_folder: "{{ gitlab_home }}/data/gitaly/hooks-bin/"
 config_file:
-  vault: []
+  vaults: []
   ignore_files: []
 
 
-# Use "update_config" tag to only update the configuration file. For example:
-# ansible-playbook some_playbook.yml -t update_config
+# Use tag "enable_hooks" - to enable pre-receive hooks or update config_file.
+# Use tag "disable_hooks" to disable hooks only.
+# Examples:
+# $ ansible-playbook gitlab.yml -t enable_hooks
+# $ ansible-playbook gitlab.yml -t disable_hooks
 # 
 # vault - for vault files with specific names (files with "vault" name will check automaticly)
 # ignore_files - for files to be ignored during the scan.
