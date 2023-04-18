@@ -46,6 +46,7 @@
       tags: enable_hooks
   tags:
     - enable_hooks
+    - never
 
 - name: Include disable_hooks.yml
   include_tasks:
@@ -54,3 +55,4 @@
       tags: disable_hooks
   tags:
     - disable_hooks
+    - never
