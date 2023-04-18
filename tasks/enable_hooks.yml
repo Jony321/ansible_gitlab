@@ -23,6 +23,12 @@
     dest: "{{ hooks_bin_folder }}/secrecy.py"
     mode: 0755
 
+- name: Copy config file secrecy.ini to hooks-bin folder
+  template:
+    src: secrecy.ini.j2
+    dest: "{{ hooks_bin_folder }}/secrecy.ini"
+    mode: 0644
+
 - name: Uncomment custom_hooks_folder line at gitlab.rb
   lineinfile:
     dest: "{{ gitlab_home }}/config/gitlab.rb"
