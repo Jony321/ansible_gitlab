@@ -43,16 +43,16 @@
   include_tasks:
     file: "enable_hooks.yml"
     apply:
-      tags: enable_hooks
+      tags: hooks
   tags:
-    - enable_hooks
-    - never
+    - hooks
+  when: gitlab_enable_pre_receive_hooks
 
 - name: Include disable_hooks.yml
   include_tasks:
     file: "disable_hooks.yml"
     apply:
-      tags: disable_hooks
+      tags: hooks
   tags:
-    - disable_hooks
-    - never
+    - hooks
+  when: not gitlab_enable_pre_receive_hooks

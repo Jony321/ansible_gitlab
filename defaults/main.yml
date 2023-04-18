@@ -36,18 +36,16 @@ s3cmd_host_bucket: "%(bucket)s.s3.amazonaws.com"
 
 
 # Vars for enable server-side global hooks
+gitlab_enable_pre_receive_hooks: false
 hooks_folder: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/"
 hooks_bin_folder: "{{ gitlab_home }}/data/gitaly/hooks-bin/"
 config_file:
   vaults: []
   ignore_files: []
 
-
-# Use tag "enable_hooks" - to enable pre-receive hooks or update config_file.
-# Use tag "disable_hooks" to disable hooks only.
-# Examples:
-# $ ansible-playbook gitlab.yml -t enable_hooks
-# $ ansible-playbook gitlab.yml -t disable_hooks
+# Variable "gitlab_enable_pre_receive_hooks" enable (true) or disable (false) hooks configuring during the gitlab deploying.
+# Tag "hooks" uses when need to update "config_file" file, but ensure "gitlab_enable_pre_receive_hooks" is "true".
+# Tag "hooks" can be used to disable hooks without run all tasks, but ensure "gitlab_enable_pre_receive_hooks" is "false".
 # 
 # vault - for vault files with specific names (files with "vault" name will check automaticly)
 # ignore_files - for files to be ignored during the scan.
