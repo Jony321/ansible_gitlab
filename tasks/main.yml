@@ -1,5 +1,4 @@
 ---
-# tasks file for ageres210784.ansible_gitlab
 - name: Ensure data path
   file:
     state: directory
@@ -22,37 +21,27 @@
             - "{{ gitlab_http_port }}:80"
             - "{{ gitlab_https_port }}:443"
             - "{{ gitlab_ssh_port }}:22"
-          volumes:
-            - '{{ gitlab_home }}/config:/etc/gitlab'
-            - '{{ gitlab_home }}/logs:/var/log/gitlab'
-            - '{{ gitlab_home }}/data:/var/opt/gitlab'
+          volumes: "{%if gitlab_ldap_ca_cert != ''%}{{ gitlab_volumes + [gitlab_ldap_ca_cert + ':/etc/gitlab/trusted-certs/ca.crt'] }}{%else%}{{ gitlab_volumes }}{%endif%}"
           hostname: "{{ gitlab_host_name }}"
           environment:
             GITLAB_OMNIBUS_CONFIG: "{{ gitlab_omnibus_config }}"
           restart: always
 
-- name: Include backup.yml
-  include_tasks:
-    file: "backup.yml"
-    apply:
-      tags: backup
+- name: Import backup.yml
+  import_tasks: "backup.yml"
   tags:
     - backup
 
-- name: Include enable_hooks.yml
+- name: Include extra_files.yml
   include_tasks:
-    file: "enable_hooks.yml"
+    file: "extra_files.yml"
     apply:
-      tags: hooks
+      tags: extra_files
   tags:
-    - hooks
-  when: gitlab_enable_pre_receive_hooks
+    - extra_files
+  with_items: "{{ gitlab_extra_files }}"
 
-- name: Include disable_hooks.yml
-  include_tasks:
-    file: "disable_hooks.yml"
-    apply:
-      tags: hooks
+- name: Import extra_config.yml
+  import_tasks: "extra_config.yml"
   tags:
-    - hooks
-  when: not gitlab_enable_pre_receive_hooks
+    - extra_config

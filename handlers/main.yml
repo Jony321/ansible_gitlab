@@ -1,8 +1,4 @@
 ---
-# handlers file for ageres210784.ansible_gitlab
-
-# If "gitlab_enable_pre_receive_hooks: true" and /etc/gitlab/gitlab.rb changed,
-# start "gitlab-ctl reconfigure" for apply changes.
 - name: gitlab-ctl reconfigure
   community.docker.docker_container_exec:
     container: "{{ gitlab_container_name }}"

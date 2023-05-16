@@ -12,6 +12,11 @@ gitlab_omnibus_config: |
   external_url "{{ gitlab_external_url }}"
   gitlab_rails['initial_root_password'] = "{{ gitlab_initial_root_password }}"
   # Add any other gitlab.rb configuration here, each on its own line
+gitlab_volumes:
+  - '{{ gitlab_home }}/config:/etc/gitlab'
+  - '{{ gitlab_home }}/logs:/var/log/gitlab'
+  - '{{ gitlab_home }}/data:/var/opt/gitlab'
+gitlab_ldap_ca_cert: ''
 gitlab_log_path: "/var/log/gitlab"
 gitlab_bin_path: "/root/bin"
 gitlab_s3cmd_config_path: "/root"
@@ -37,15 +42,41 @@ s3cmd_host_bucket: "%(bucket)s.s3.amazonaws.com"
 
 # Vars for enable server-side global hooks
 gitlab_enable_pre_receive_hooks: false
-hooks_folder: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d/"
-hooks_bin_folder: "{{ gitlab_home }}/data/gitaly/hooks-bin/"
+hooks_folder: "{{ gitlab_home }}/data/gitaly/custom_hooks/pre-receive.d"
+hooks_bin_folder: "{{ gitlab_home }}/data/gitaly/hooks-bin"
 config_file:
   vaults: []
   ignore_files: []
+gitlab_extra_files:
+  - src: pre-receive.j2
+    dest: "{{ hooks_folder }}/pre-receive"
+    mode: "0755"
+  - src: secrecy.py.j2
+    dest: "{{ hooks_bin_folder }}/secrecy.py"
+    mode: "0755"
+  - src: secrecy.ini.j2
+    dest: "{{ hooks_bin_folder }}/secrecy.ini"
+    mode: "0644"
+gitlab_extra_config: ""
+# Example:
+# gitlab_extra_config: |
+#   nginx['client_max_body_size'] = '2048m'
+#   gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
+#   gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
+#     main: # 'main' is the GitLab 'provider ID' of this LDAP server
+#       label: 'LDAP'
+#       host: 'ldap.example.com'
+#       port: 636
+#       uid: 'uid'
+#       bind_dn: 'cn=reader,dc=example,dc=com'
+#       password: 'somepassword'
+#       encryption: 'simple_tls' # "start_tls" or "simple_tls" or "plain"
+#       base: 'ou=users,dc=example,dc=com'
+#   EOS
 
-# Variable "gitlab_enable_pre_receive_hooks" enable (true) or disable (false) hooks configuring during the gitlab deploying.
-# Tag "hooks" uses when need to update "config_file" file, but ensure "gitlab_enable_pre_receive_hooks" is "true".
-# Tag "hooks" can be used to disable hooks without run all tasks, but ensure "gitlab_enable_pre_receive_hooks" is "false".
+# For enable or disable pre-receive hooks you should add, or delete the line
+# in variable - gitlab_extra_config:
+# gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
 # 
 # vault - for vault files with specific names (files with "vault" name will check automaticly)
 # ignore_files - for files to be ignored during the scan.
