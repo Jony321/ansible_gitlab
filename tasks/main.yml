@@ -21,7 +21,7 @@
             - "{{ gitlab_http_port }}:80"
             - "{{ gitlab_https_port }}:443"
             - "{{ gitlab_ssh_port }}:22"
-          volumes: "{%if gitlab_ldap_ca_cert != ''%}{{ gitlab_volumes + [gitlab_ldap_ca_cert + ':/etc/gitlab/trusted-certs/ca.crt'] }}{%else%}{{ gitlab_volumes }}{%endif%}"
+          volumes: "{{ gitlab_volumes }}"
           hostname: "{{ gitlab_host_name }}"
           environment:
             GITLAB_OMNIBUS_CONFIG: "{{ gitlab_omnibus_config }}"
@@ -40,8 +40,3 @@
   tags:
     - extra_files
   with_items: "{{ gitlab_extra_files }}"
-
-- name: Import extra_config.yml
-  import_tasks: "extra_config.yml"
-  tags:
-    - extra_config
