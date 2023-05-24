@@ -1,8 +1,0 @@
----
-- name: Comment custom_hooks_folder line at gitlab.rb
-  lineinfile:
-    dest: "{{ gitlab_home }}/config/gitlab.rb"
-    state: present
-    regexp: 'gitaly\[.custom_hooks_dir.\] = "/var/opt/gitlab/gitaly/custom_hooks"'
-    line: "# gitaly['custom_hooks_dir'] = \"/var/opt/gitlab/gitaly/custom_hooks\""
-  notify: gitlab-ctl reconfigure

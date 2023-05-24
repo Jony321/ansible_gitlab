@@ -1,0 +1,11 @@
+---
+- name: Ensure directory "{{ item.dest | dirname }}"
+  file:
+    state: directory
+    path: "{{ item.dest | dirname }}"
+
+- name: Ensure file "{{ item.dest | basename }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
