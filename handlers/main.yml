@@ -1,5 +1,1 @@
 ---
-- name: gitlab-ctl reconfigure
-  community.docker.docker_container_exec:
-    container: "{{ gitlab_container_name }}"
-    command: /bin/bash -c "gitlab-ctl reconfigure"
