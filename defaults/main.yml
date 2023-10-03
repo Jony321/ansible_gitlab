@@ -58,7 +58,10 @@ gitlab_extra_files:
 
 # For enable or disable pre-receive hooks you should add, or delete the line
 # in variable - gitlab_omnibus_config:
+# For gitlab 15.10 and earlier: 
 # gitaly['custom_hooks_dir'] = "/var/opt/gitlab/gitaly/custom_hooks"
+# For gitlab 15.11 and later: 
+# gitaly['configuration'][:hooks][:custom_hooks_dir] = "/var/opt/gitlab/gitaly/custom_hooks"
 # 
 # vault - for vault files with specific names (files with "vault" name will check automaticly)
 # ignore_files - for files to be ignored during the scan.
