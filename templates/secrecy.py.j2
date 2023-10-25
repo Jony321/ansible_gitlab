@@ -206,6 +206,9 @@ def check_between(ctx: Context, base: str, target: str):
         # Setting the commit in the context for better error message
         ctx.commit = commit
 
+        # Receive all files that were somehow changed in that commit, excluding
+        # the files that were removed.
+
         # Options needed to resolve problems with non-standard encoding in the file path.
         # '-c' - Pass a configuration parameter to the command.
         # 'core.quotepath=off' - to disable quote "unusual" characters in the pathname.
