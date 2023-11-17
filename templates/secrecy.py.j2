@@ -208,7 +208,12 @@ def check_between(ctx: Context, base: str, target: str):
 
         # Receive all files that were somehow changed in that commit, excluding
         # the files that were removed.
-        cmd = ["git", "diff", "--diff-filter=d", "--name-only", f'{commit}^', commit]
+
+        # Options needed to resolve problems with non-standard encoding in the file path.
+        # '-c' - Pass a configuration parameter to the command.
+        # 'core.quotepath=off' - to disable quote "unusual" characters in the pathname.
+
+        cmd = ["git", '-c', 'core.quotepath=off', "diff", "--diff-filter=d", "--name-only", f'{commit}^', commit]
         files = subprocess.check_output(cmd)
         for file in files.splitlines():
             filestr = file.decode()
