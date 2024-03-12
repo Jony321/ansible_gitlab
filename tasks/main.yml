@@ -21,6 +21,7 @@
             - "{{ gitlab_http_port }}:80"
             - "{{ gitlab_https_port }}:443"
             - "{{ gitlab_ssh_port }}:22"
+            - "{{ gitlab_registry_port }}:5000"
           volumes: "{{ gitlab_volumes }}"
           hostname: "{{ gitlab_host_name }}"
           environment:
