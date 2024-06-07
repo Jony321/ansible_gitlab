@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from typing import List, Optional
 import argparse
 import configparser
@@ -8,9 +7,6 @@ import os
 import re
 import subprocess
 import sys
-
-
-# ----- Utilities ------------------------------------------------------------
 
 def read_file(path: str) -> bytes:
     with open(path, "rb") as f:
@@ -51,7 +47,7 @@ class Context:
 
     def line_error(self, path: str, line: int, msg: str):
         self.errored = True
-        print(f'ERROR in {path}:{line}{self.commit_output()} => {msg}', file=sys.stderr)
+        print(f'ERROR in {path}:{line - 4}{self.commit_output()} => {msg}', file=sys.stderr)
 
     def commit_output(self):
         if self.commit is not None:
@@ -180,6 +176,54 @@ def main():
         eprint("Potentially found unencrypted secrets!")
         sys.exit(1)
 
+def get_changes(commit_hash):
+    try:
+        # Run the git show command and capture the output
+        result = subprocess.run(['git', 'show', commit_hash],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+
+        # Split the output into lines
+        output_lines = result.stdout.splitlines()
+
+        # Initialize a dictionary to hold the changes
+        changes = {}
+
+        current_file = None
+        current_diff = []
+
+        # Parse the output lines
+        for line in output_lines:
+            # Lines starting with 'diff --git' indicate the start of a file diff
+            if line.startswith('diff --git'):
+                # If there's a current file being processed, save its diff text
+                if current_file and current_diff:
+                    changes[current_file] = "\n".join(current_diff)
+                    current_diff = []
+
+                # Extract the filename from the line
+                parts = line.split()
+                if len(parts) == 4:
+                    file_a = parts[2][2:]  # Remove the 'a/' prefix
+                    file_b = parts[3][2:]  # Remove the 'b/' prefix
+                    if file_a == file_b:
+                        current_file = file_a
+                if len(parts) == 6:
+                    file_a = parts[2][2:] +  parts[3][2:] # Remove the 'a/' prefix
+                    file_b = parts[4][2:] + parts[6][2:]# Remove the 'b/' prefix
+                    if file_a == file_b:
+                        current_file = file_a
+            elif current_file:
+                # Collect the diff text for the current file
+                current_diff.append(line)
+
+        # Don't forget to add the last file's changes
+        if current_file and current_diff:
+            changes[current_file] = "\n".join(current_diff)
+        return changes
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running git show: {e.stderr}")
+        return {}
 
 def check_staged(ctx: Context):
     """Checks all files that are currently staged. Useful in pre-commit hook"""
@@ -208,37 +252,10 @@ def check_between(ctx: Context, base: str, target: str):
 
         # Receive all files that were somehow changed in that commit, excluding
         # the files that were removed.
-
-        # Options needed to resolve problems with non-standard encoding in the file path.
-        # '-c' - Pass a configuration parameter to the command.
-        # 'core.quotepath=off' - to disable quote "unusual" characters in the pathname.
-
-        cmd = ["git", '-c', 'core.quotepath=off', "diff", "--diff-filter=d", "--name-only", f'{commit}^', commit]
-        files = subprocess.check_output(cmd)
-        for file in files.splitlines():
-            filestr = file.decode()
-            content = subprocess.check_output(["git", "show", f'{commit}:{filestr}'])
-            check_file(ctx, content, filestr)
-
-
-def check_current(ctx: Context, path: str):
-    """Checks all files in 'path' in their current version (not using git)"""
-
-    if os.path.isfile(path):
-        if ctx.is_ignored(path):
-            eprint(f'The file you specified ({path}) is ignored by the configuration')
-            return
-
-        content = read_file(path)
-        check_file(ctx, content, path)
-    else:
-        for dirpath, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                fullpath = os.path.join(dirpath, filename);
-                content = read_file(fullpath)
-                check_file(ctx, content, fullpath)
-
-
+        changes = get_changes(commit)
+        for filestr, content in changes.items():
+          content = content.replace(' ', '').replace('+', '')
+          check_file(ctx, content.encode('utf-8'), filestr)
 
 
 if __name__ == "__main__":
