@@ -7,12 +7,10 @@
   register: gitlab_reconfig
 
 - name: Start docker gitlab container
-  docker_compose:
-    state: present
+  community.docker.docker_compose_v2:
+    state: "{{ 'restarted' if gitlab_reconfig.changed else 'present' }}"
     project_name: gitlab
-    restarted: "{{ 'yes' if gitlab_reconfig.changed else 'no' }}"
     definition:
-      version: '2'
       services:
         gitlab:
           image: "{{ gitlab_docker_image }}"
